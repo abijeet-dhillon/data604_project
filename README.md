@@ -1,81 +1,198 @@
 # DATA604 Project
 
-This project explores how movements in the Bank of Canada commodity price index (BCPI) relate to Canadian effective exchange rates (CEER). The planned analysis uses Python for data cleaning, exploration, visualization, and forecasting, with SQL for storing and querying the monthly data.
+## Project overview
 
-## Project status
+This project examines the relationship between Canadian commodity prices and the value of the Canadian dollar.
 
-The repository currently contains the source CSV exports and a set of proposed research questions. Python notebooks or scripts, SQL schema and queries, and a dependency file have not been added yet.
+Canada is a major exporter of commodities such as energy products, metals, forestry products, agricultural goods, and fish. Because these commodities are important to Canada's economy and international trade, changes in their prices may be associated with changes in the value of the Canadian dollar.
 
-## Repository contents
+The project uses historical monthly data from the Bank of Canada to investigate whether movements in Canadian commodity prices are related to movements in Canada's effective exchange rate.
+
+The goal is to identify broad economic relationships that may help explain how commodity-market conditions and the Canadian dollar have moved together over time.
+
+## Main research questions
+
+The project investigates the following questions:
+
+1. How does the Canadian dollar's effective exchange rate behave during periods when commodity prices are relatively high?
+2. Are changes in the Canadian dollar different during months when commodity prices increase compared with months when they decrease?
+3. Are energy prices more strongly associated with exchange-rate movements than non-energy commodity prices?
+4. How are metals, forestry products, agricultural products, and fish prices related to the Canadian dollar?
+5. Did the relationship between commodity prices and the Canadian dollar change before, during, and after the COVID-19 pandemic?
+6. Do commodity-price movements appear to be associated with exchange-rate movements in the following month?
+7. Does the relationship differ depending on whether the Canadian dollar is compared with a broad group of trading partners, major currencies, or trading partners other than the United States?
+
+These questions are documented in [`docs/rqs.md`](docs/rqs.md).
+
+## Data sources
+
+The project uses two official Bank of Canada datasets.
+
+### Bank of Canada Commodity Price Index
+
+The Bank of Canada Commodity Price Index, or BCPI, summarizes changes in the prices of commodities produced in Canada and sold in international markets.
+
+The BCPI includes measures related to:
+
+- Overall commodity prices
+- Commodity prices excluding energy
+- Energy
+- Metals and minerals
+- Forestry products
+- Agricultural products
+- Fish products
+
+The BCPI data used in this project begin in January 1972.
+
+Source:
+
+[Bank of Canada Commodity Price Index](https://www.bankofcanada.ca/rates/price-indexes/bcpi/)
+
+### Canadian Effective Exchange Rates
+
+The Canadian Effective Exchange Rate, or CEER, summarizes the value of the Canadian dollar against a weighted group of currencies belonging to Canada's trading partners.
+
+The CEER data used in this project include real exchange-rate measures for:
+
+- A broad group of trading partners
+- A broad group excluding the United States
+- Major currencies
+- Other important trading partners
+
+The CEER data used in this project begin in January 1999.
+
+Source:
+
+[Bank of Canada Canadian Effective Exchange Rates](https://www.bankofcanada.ca/rates/exchange/canadian-effective-exchange-rates/)
+
+## What the data represent
+
+The BCPI and CEER are indexes. They are designed to show how prices or exchange rates change over time relative to a reference period.
+
+They are not direct dollar amounts.
+
+For example:
+
+- A BCPI value is not the price of a specific commodity.
+- A CEER value is not a direct Canadian-dollar-to-U.S.-dollar exchange-rate quotation.
+- A higher or lower index value should be interpreted in relation to other periods.
+- Changes in the indexes are more meaningful than comparing the index values as if they were dollar amounts.
+
+The CEER data used in this project are real exchange-rate indexes. This means that they account for both currency movements and differences in price levels between Canada and its trading partners.
+
+## Project data files
+
+The raw data files are stored in the `data/raw/` directory.
+
+The project contains:
+
+- `BCPI_MONTHLY-sd-1972-01-01.csv`
+- `CEER_BROADM,CEER_MCM,CEER_OITPM,CEER_BROAD_XUSM-sd-1990-01-01.csv`
+
+The CEER filename includes `1990`, but the observations in the supplied file begin in January 1999.
+
+The original downloaded files are retained so that the analysis can be traced back to the Bank of Canada source data.
+
+## Project structure
 
 ```text
 data604_project/
 ├── data/
-│   ├── BCPI_MONTHLY-sd-1972-01-01.csv
-│   └── CEER_BROADM,CEER_MCM,CEER_OITPM,CEER_BROAD_XUSM-sd-1990-01-01.csv
+│   └── raw/
+│       ├── BCPI_MONTHLY-sd-1972-01-01.csv
+│       └── CEER_BROADM,CEER_MCM,CEER_OITPM,CEER_BROAD_XUSM-sd-1990-01-01.csv
 ├── docs/
+│   ├── data.md
 │   └── rqs.md
+├── notebooks/
+│   └── project.ipynb
 └── README.md
 ```
 
-## Research questions
+## Period covered by the analysis
 
-The proposed questions are documented in [`docs/rqs.md`](docs/rqs.md). They cover:
+The BCPI dataset begins earlier than the CEER dataset.
 
-1. Months when the total BCPI is above its historical median and the CEER values in those months.
-2. Whether CEER changes differ between months when the BCPI rises and falls.
-3. Relationships between changes in total, energy, and non-energy BCPI measures and CEER measures.
-4. Whether the BCPI–CEER relationship changed across pre-pandemic, pandemic, and post-pandemic periods.
-5. Whether lagged BCPI movements improve predictions of next month's CEER change.
+The available data cover approximately:
 
-These questions are proposals; the analysis and findings have not yet been implemented in this repository.
+- BCPI: January 1972 through September 2026
+- CEER: January 1999 through June 2026
 
-## Data
+When both datasets are analyzed together, the analysis is limited to the period for which both datasets contain observations. Based on the current files, this common period begins in January 1999 and ends in June 2026.
 
-Both files are monthly Bank of Canada CSV exports. They include metadata rows before the observation table, so skip those rows when loading the observations.
+The available period may change when updated data are downloaded from the Bank of Canada.
 
-| File | Measures | Observations in this export |
-| --- | --- | --- |
-| `BCPI_MONTHLY-sd-1972-01-01.csv` | Total BCPI (`M.BCPI`), BCPI excluding energy (`M.BCNE`), energy (`M.ENER`), metals and minerals (`M.MTLS`), forestry (`M.FOPR`), agriculture (`M.AGRI`), and fish (`M.FISH`) | 1972-01 through 2026-09 (657 months) |
-| `CEER_BROADM,CEER_MCM,CEER_OITPM,CEER_BROAD_XUSM-sd-1990-01-01.csv` | Real broad CEER (`CEER_BROADM`), real CEER excluding the US dollar (`CEER_BROAD_XUSM`), real CEER versus major currencies (`CEER_MCM`), and real CEER versus other important trading partners (`CEER_OITPM`) | 1999-01 through 2026-06 (330 months) |
+## How the project supports decision-making
 
-The CEER observations in the supplied file begin in 1999, despite `1990` appearing in its filename. The supplied CEER series are real exchange-rate indices; a nominal CEER series is not included. Questions that specifically require nominal CEER values need an additional data source or revised wording. For joined analysis, align the datasets on `date` and use their overlapping period; the current overlap ends in 2026-06.
+The project is intended to help a non-technical audience understand whether Canadian commodity-market conditions and the Canadian dollar tend to move together.
 
-The CSV exports carry the Bank of Canada's terms link: <https://www.bankofcanada.ca/terms/>. Check the source and terms when redistributing the data.
+Possible uses of the findings include:
 
-### Loading the observation tables with pandas
+- Improving understanding of Canada's exposure to commodity-price cycles
+- Supporting discussions about export revenues and trade conditions
+- Providing context for movements in the Canadian dollar
+- Comparing energy-related effects with non-energy commodity effects
+- Identifying whether relationships changed during unusual economic periods
+- Supporting future economic forecasting and research
 
-The observation header starts on line 21 of the BCPI file and line 12 of the CEER file. For pandas, skip the metadata rows before the header:
+The results are intended to provide context and evidence. They should not be interpreted as a complete forecast of the Canadian dollar or as proof that commodity prices are the only cause of exchange-rate movements.
 
-```python
-import pandas as pd
+## Important limitations
 
-bcpi = pd.read_csv(
-    "data/BCPI_MONTHLY-sd-1972-01-01.csv",
-    skiprows=20,
-    encoding="utf-8-sig",
-    parse_dates=["date"],
-)
+### Association does not prove cause
 
-ceer = pd.read_csv(
-    "data/CEER_BROADM,CEER_MCM,CEER_OITPM,CEER_BROAD_XUSM-sd-1990-01-01.csv",
-    skiprows=11,
-    encoding="utf-8-sig",
-    parse_dates=["date"],
-)
+If commodity prices and the Canadian dollar move together, this does not necessarily mean that one directly caused the other.
 
-monthly = bcpi.merge(ceer, on="date", how="inner")
-```
+Both may be affected by other factors, including:
 
-## Python and SQL workflow
+- Global economic growth
+- Interest rates
+- Monetary policy
+- Inflation
+- Geopolitical events
+- International trade policies
+- Energy-market disruptions
+- Investor confidence
+- Financial-market conditions
+- Movements in the U.S. dollar
 
-Python analyses can use pandas for loading, cleaning, joining, and feature creation, plus a plotting library for visualizations. A forecasting question may also use a machine-learning library. The repo does not yet pin dependencies or specify a database engine or SQL dialect; those choices should be recorded when the analysis code is added.
+The project therefore focuses on relationships and associations rather than claiming that commodity prices alone determine the value of the Canadian dollar.
 
-For SQL work, load the parsed observation tables into a database, retain `date` as a date type, and join the monthly tables on `date`. Keep the original source CSVs unchanged so the analysis can be traced back to the downloaded data.
+### The datasets cover different periods
 
-## Suggested next steps
+The BCPI data begin in 1972, while the CEER data begin in 1999. Comparisons involving both datasets cannot include the earlier BCPI-only period.
 
-1. Add the analysis notebook or Python scripts and record their run instructions.
-2. Choose and document the SQL database and add the schema and queries.
-3. Add a dependency file such as `requirements.txt` or `pyproject.toml`.
-4. Confirm the intended CEER measure for each research question and obtain nominal CEER data if needed.
+### The CEER data are real exchange-rate indexes
+
+The CEER data are adjusted for relative price changes. They should not be interpreted as nominal exchange rates or as direct currency quotations.
+
+### Index values are not individual prices
+
+The BCPI combines many commodities using economic weights. A change in the total BCPI does not mean that every commodity changed by the same amount.
+
+Likewise, the CEER combines multiple currencies using trade-related weights. A change in the broad CEER does not mean that the Canadian dollar moved by the same amount against every trading partner.
+
+### Historical values may change
+
+The Bank of Canada may revise historical observations when new information becomes available or when source data, commodity weights, exchange-rate weights, or methods are updated.
+
+The findings should therefore be understood as based on the versions of the datasets available when they were collected.
+
+## Documentation
+
+Detailed information about the datasets, including descriptions of each column, how the data are constructed, how the indexes should be interpreted, and the main limitations, is available in [`docs/data.md`](docs/data.md).
+
+The project's research questions are available in [`docs/rqs.md`](docs/rqs.md).
+
+## Data attribution
+
+The data are provided by the Bank of Canada.
+
+Sources:
+
+- [Canadian Effective Exchange Rates](https://www.bankofcanada.ca/rates/exchange/canadian-effective-exchange-rates/)
+- [Bank of Canada Commodity Price Index](https://www.bankofcanada.ca/rates/price-indexes/bcpi/)
+
+The Bank of Canada's terms of use are available at:
+
+[Bank of Canada Terms of Use](https://www.bankofcanada.ca/terms/)
