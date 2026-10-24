@@ -40,3 +40,23 @@ Why it fits: You must combine time-based data manipulation with comparative stat
 andas skills: Lagged columns, time-series feature engineering, missing-value handling, chronological train/test splits, and model evaluation using MAE or RMSE.
 Why it fits: This combines data preparation, predictive modelling, careful evaluation, and the need to avoid data leakage by never training on future observations.
 Important: This question tests predictive value, not whether commodity prices cause exchange-rate movements.
+
+## 6. Cross-dataset economic exploration
+
+**Research question:** How are Canadian labour-market conditions, oil prices, and inflation connected with commodity prices and Canadian effective exchange rates?
+
+**What you would do:** Add relevant monthly labour-market, oil-price, and inflation data from reliable official sources. Align the additional datasets with the BCPI and CEER data using their shared monthly date index, restrict all datasets to the same analytical period, and compare trends and relationships across the variables. The analysis could examine correlations, changes during important economic periods, and whether labour-market conditions, oil prices, or inflation help explain movements in commodity prices and the Canadian dollar.
+
+Potential variables may include:
+
+- Employment and unemployment measures
+- The unemployment rate
+- Labour-force participation
+- Crude oil prices
+- Consumer price inflation
+- Core inflation measures
+- Changes in the overall BCPI, energy BCPI, and CEER
+
+Pandas and analysis skills: Date alignment, merging multiple datasets, handling missing observations, resampling, percentage changes, correlation analysis, grouped comparisons, visualization, and interpretation of cross-dataset relationships.
+
+Why it fits: This extends the project beyond the relationship between commodity prices and exchange rates by incorporating broader economic indicators. It can help assess whether observed relationships are also associated with labour-market conditions, oil prices, or inflation. This analysis should be interpreted as exploratory because associations between these variables do not establish causation.
