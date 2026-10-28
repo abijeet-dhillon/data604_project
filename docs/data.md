@@ -36,9 +36,15 @@ Although the CEER filename includes `1990`, the observations in the supplied fil
 
 ## General structure
 
-Both datasets use one row per month. The `date` column identifies the observation month, and the remaining columns contain index values.
+Both datasets use one row per month. The `date` column identifies the
+observation month, and the remaining columns contain index values.
 
-The dates are represented as the first day of each month. For example:
+The combined processed dataset also includes a `geography` column identifying
+the geographic coverage of the observations. For this project, its value is
+`Canada`.
+
+The `date` column remains a regular data column and is stored as a datetime
+value. Dates represent the first day of each month. For example:
 
 ```text
 1999-01-01
@@ -50,6 +56,7 @@ The datasets can be joined on `date`:
 
 ```python
 monthly = bcpi.merge(ceer, on="date", how="inner")
+monthly["geography"] = "Canada"
 ```
 
 Because the BCPI and CEER files cover different historical periods, an inner join produces only the months for which both datasets have observations.
@@ -579,22 +586,30 @@ ceer["date"] = pd.to_datetime(ceer["date"])
 
 The `utf-8-sig` encoding is used because Bank of Canada CSV files may include a UTF-8 byte-order mark at the beginning of the file.
 
-## Setting the date as the index
+## Date and geography columns
 
-For time-series analysis, the date can be used as the index:
+The `date` column should be converted to a pandas datetime column but should
+not be moved to the index:
 
 ```python
-bcpi = bcpi.set_index("date").sort_index()
-ceer = ceer.set_index("date").sort_index()
+bcpi["date"] = pd.to_datetime(bcpi["date"])
+ceer["date"] = pd.to_datetime(ceer["date"])
 ```
 
-After this step, both data frames have a `DatetimeIndex`.
+The processed combined dataset contains:
 
-A date range can then be selected using `.loc[]`:
+- `date`: monthly observation date
+- BCPI index columns
+- CEER index columns
+- `geography`: geographic coverage, set to `Canada`
+
+Date ranges should be filtered with `.loc[]` or boolean date conditions:
 
 ```python
-bcpi_2015_2025 = bcpi.loc["2015-01-01":"2025-12-31"]
-ceer_2015_2025 = ceer.loc["2015-01-01":"2025-12-31"]
+bcpi_2015_2025 = bcpi.loc[
+    (bcpi["date"] >= "2015-01-01") &
+    (bcpi["date"] <= "2025-12-31")
+]
 ```
 
 `between_time()` should not be used for this purpose. `between_time()` filters times of day, such as 09:00 through 17:00. Date ranges should be filtered with `.loc[]` or boolean date conditions.
@@ -605,16 +620,10 @@ The datasets can be joined on their monthly date:
 
 ```python
 monthly = (
-    bcpi.reset_index()
-        .merge(ceer.reset_index(), on="date", how="inner")
+    bcpi.merge(ceer, on="date", how="inner")
         .sort_values("date")
 )
-```
-
-Alternatively, if both data frames use `date` as their index:
-
-```python
-monthly = bcpi.join(ceer, how="inner")
+monthly["geography"] = "Canada"
 ```
 
 An inner join keeps only months that appear in both datasets.
@@ -626,29 +635,30 @@ Because the BCPI data begin earlier than the CEER data, the combined dataset beg
 The following checks help confirm that the data were loaded correctly:
 
 ```python
-print(bcpi.index.dtype)
-print(ceer.index.dtype)
+print(bcpi["date"].dtype)
+print(ceer["date"].dtype)
 
-print(bcpi.index.min())
-print(bcpi.index.max())
+print(bcpi["date"].min())
+print(bcpi["date"].max())
 
-print(ceer.index.min())
-print(ceer.index.max())
+print(ceer["date"].min())
+print(ceer["date"].max())
 
 print(bcpi.isna().sum())
 print(ceer.isna().sum())
 
-print(bcpi.index.is_monotonic_increasing)
-print(ceer.index.is_monotonic_increasing)
+print(bcpi["date"].is_monotonic_increasing)
+print(ceer["date"].is_monotonic_increasing)
 ```
 
-The date indexes should be datetime indexes, sorted in ascending order, and should not contain unexpected duplicate months.
+The `date` columns should contain datetime values, be sorted in ascending
+order, and should not contain unexpected duplicate months.
 
 Duplicate dates can be checked with:
 
 ```python
-print(bcpi.index.duplicated().sum())
-print(ceer.index.duplicated().sum())
+print(bcpi["date"].duplicated().sum())
+print(ceer["date"].duplicated().sum())
 ```
 
 ## Data transformations used in analysis
@@ -716,8 +726,8 @@ Consequently, analyses requiring both BCPI and CEER variables must use their ove
 A safe way to identify the overlap programmatically is:
 
 ```python
-overlap_start = max(bcpi.index.min(), ceer.index.min())
-overlap_end = min(bcpi.index.max(), ceer.index.max())
+overlap_start = max(bcpi["date"].min(), ceer["date"].min())
+overlap_end = min(bcpi["date"].max(), ceer["date"].max())
 
 print(overlap_start)
 print(overlap_end)
